@@ -114,7 +114,7 @@
     <h1>💬 ChatApp</h1>
     <p>Real-time WebSocket messaging</p>
     <input id="username-input" type="text" placeholder="Enter your username" maxlength="30" autocomplete="off">
-    <button id="join-button" onclick="connect()">Join Chat</button>
+    <button id="join-button" type="button">Join Chat</button>
 </div>
 
 <!-- ── Chat ───────────────────────────────────────── -->
@@ -125,9 +125,8 @@
     </div>
     <div id="message-area"></div>
     <div id="message-input-area">
-        <input id="message-input" type="text" placeholder="Type a message…" autocomplete="off"
-               onkeydown="if(event.key==='Enter') sendMessage()">
-        <button id="send-button" onclick="sendMessage()">Send</button>
+        <input id="message-input" type="text" placeholder="Type a message…" autocomplete="off">
+        <button id="send-button" type="button">Send</button>
     </div>
 </div>
 
@@ -137,21 +136,48 @@
 <script>
     let stompClient = null;
     let currentUser = null;
+    const sockJsFactory = window.SockJS;
+    const stompFactory = window.Stomp;
+
+    const usernameInput = document.getElementById('username-input');
+    const joinButton = document.getElementById('join-button');
+    const chatPage = document.getElementById('chat-page');
+    const loginPage = document.getElementById('login-page');
+    const messageInput = document.getElementById('message-input');
+    const sendButton = document.getElementById('send-button');
+    const messageArea = document.getElementById('message-area');
+
+    joinButton.addEventListener('click', connect);
+    sendButton.addEventListener('click', sendMessage);
+    usernameInput.addEventListener('keydown', function (event) {
+        if (event.key === 'Enter') {
+            connect();
+        }
+    });
+    messageInput.addEventListener('keydown', function (event) {
+        if (event.key === 'Enter') {
+            sendMessage();
+        }
+    });
 
     function connect() {
-        const usernameInput = document.getElementById('username-input');
         const username = usernameInput.value.trim();
         if (!username) { usernameInput.focus(); return; }
         currentUser = username;
 
-        const socket = new SockJS('/ws');
-        stompClient = Stomp.over(socket);
+        if (!sockJsFactory || !stompFactory) {
+            console.error('SockJS/STOMP libraries are not available.');
+            return;
+        }
+
+        const socket = new sockJsFactory('/ws');
+        stompClient = stompFactory.over(socket);
         stompClient.debug = null; // suppress console noise
 
         stompClient.connect({}, function () {
-            document.getElementById('login-page').style.display = 'none';
-            document.getElementById('chat-page').style.display = 'flex';
-            document.getElementById('message-input').focus();
+            loginPage.style.display = 'none';
+            chatPage.style.display = 'flex';
+            messageInput.focus();
 
             // Subscribe to public channel
             stompClient.subscribe('/topic/public', function (payload) {
@@ -169,8 +195,7 @@
     }
 
     function sendMessage() {
-        const input = document.getElementById('message-input');
-        const content = input.value.trim();
+        const content = messageInput.value.trim();
         if (!content || !stompClient) return;
 
         stompClient.send('/app/chat.sendMessage', {}, JSON.stringify({
@@ -178,20 +203,18 @@
             content: content,
             type: 'CHAT'
         }));
-        input.value = '';
-        input.focus();
+        messageInput.value = '';
+        messageInput.focus();
     }
 
     function showMessage(message) {
-        const area = document.getElementById('message-area');
-
         if (message.type === 'JOIN' || message.type === 'LEAVE') {
             const el = document.createElement('div');
             el.className = 'event-message';
             el.textContent = message.type === 'JOIN'
                 ? `${message.sender} joined the chat`
                 : `${message.sender} left the chat`;
-            area.appendChild(el);
+            messageArea.appendChild(el);
         } else {
             const isMine = message.sender === currentUser;
             const el = document.createElement('div');
@@ -201,10 +224,10 @@
                 <div class="content">${escapeHtml(message.content)}</div>
                 <div class="time">${message.timestamp || ''}</div>
             `;
-            area.appendChild(el);
+            messageArea.appendChild(el);
         }
 
-        area.scrollTop = area.scrollHeight;
+        messageArea.scrollTop = messageArea.scrollHeight;
     }
 
     function escapeHtml(text) {

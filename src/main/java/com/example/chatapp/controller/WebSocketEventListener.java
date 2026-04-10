@@ -1,6 +1,7 @@
 package com.example.chatapp.controller;
 
 import com.example.chatapp.model.ChatMessage;
+import com.example.chatapp.service.MetricsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
@@ -20,6 +21,9 @@ public class WebSocketEventListener {
     @Autowired
     private SimpMessageSendingOperations messagingTemplate;
 
+    @Autowired
+    private MetricsService metricsService;
+
     @EventListener
     public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
@@ -32,6 +36,7 @@ public class WebSocketEventListener {
             chatMessage.setContent(username + " left the chat");
             chatMessage.setTimestamp(LocalDateTime.now().format(FORMATTER));
             messagingTemplate.convertAndSend("/topic/public", chatMessage);
+            metricsService.recordUserLeave();
         }
     }
 }

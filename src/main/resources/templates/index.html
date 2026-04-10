@@ -121,7 +121,10 @@
 <div id="chat-page">
     <div id="chat-header">
         <h2>💬 ChatApp</h2>
-        <span id="online-count">Connected</span>
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <span id="online-count">Connected</span>
+            <a href="/dashboard" style="color: #e94560; text-decoration: none; font-size: 0.85rem; font-weight: 600; padding: 6px 12px; background: #0f3460; border-radius: 6px; transition: background 0.2s;" onmouseover="this.style.background='#1a2952'" onmouseout="this.style.background='#0f3460'">📊 Dashboard</a>
+        </div>
     </div>
     <div id="message-area"></div>
     <div id="message-input-area">

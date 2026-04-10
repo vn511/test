@@ -1,6 +1,8 @@
 package com.example.chatapp.controller;
 
 import com.example.chatapp.model.ChatMessage;
+import com.example.chatapp.service.MetricsService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
@@ -14,6 +16,9 @@ import java.time.format.DateTimeFormatter;
 @Controller
 public class ChatController {
 
+    @Autowired
+    private MetricsService metricsService;
+
     private static final DateTimeFormatter FORMATTER =
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
@@ -25,6 +30,7 @@ public class ChatController {
     @SendTo("/topic/public")
     public ChatMessage sendMessage(@Payload ChatMessage chatMessage) {
         chatMessage.setTimestamp(LocalDateTime.now().format(FORMATTER));
+        metricsService.recordMessage();
         return chatMessage;
     }
 
@@ -40,6 +46,7 @@ public class ChatController {
         headerAccessor.getSessionAttributes().put("username", chatMessage.getSender());
         chatMessage.setType(ChatMessage.MessageType.JOIN);
         chatMessage.setTimestamp(LocalDateTime.now().format(FORMATTER));
+        metricsService.recordUserJoin();
         return chatMessage;
     }
 

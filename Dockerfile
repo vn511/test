@@ -1,5 +1,5 @@
 # Build stage
-FROM eclipse-temurin:8-jdk-alpine AS build
+FROM eclipse-temurin:17-jdk-alpine AS build
 WORKDIR /workspace
 
 COPY pom.xml .

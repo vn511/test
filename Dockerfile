@@ -1,5 +1,5 @@
 # Build stage
-FROM eclipse-temurin:17-jdk-alpine AS build
+FROM eclipse-temurin:8-jdk-alpine AS build
 WORKDIR /workspace
 
 COPY pom.xml .
@@ -9,7 +9,7 @@ RUN apk add --no-cache maven && \
     mvn clean package -DskipTests --no-transfer-progress
 
 # Runtime stage
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:8-jre-alpine
 WORKDIR /app
 
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup

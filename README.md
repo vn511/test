@@ -15,7 +15,7 @@ A real-time chat application built with **Spring Boot** and **WebSocket (STOMP/S
 
 | Layer       | Technology                     |
 |-------------|-------------------------------|
-| Backend     | Java 17, Spring Boot 3.2, Spring WebSocket |
+| Backend     | Java 8, Spring Boot 2.7, Spring WebSocket |
 | Messaging   | STOMP over SockJS              |
 | Frontend    | HTML5, Vanilla JS              |
 | Build       | Maven                          |
@@ -24,7 +24,7 @@ A real-time chat application built with **Spring Boot** and **WebSocket (STOMP/S
 
 ## Running Locally
 
-**Prerequisites:** Java 17+, Maven 3.8+
+**Prerequisites:** Java 8+, Maven 3.8+
 
 ```bash
 mvn spring-boot:run

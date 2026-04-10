@@ -24,8 +24,8 @@ jobs:
       - name: Checkout source
         run: |
           git init .
-          git remote add origin https://github.com/${{ github.repository }}.git
-          git -c http.extraheader="AUTHORIZATION: bearer ${{ secrets.GITHUB_TOKEN }}" fetch --depth=1 origin ${{ github.sha }}
+          git remote add origin https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git
+          git fetch --depth=1 origin ${{ github.sha }}
           git checkout --force FETCH_HEAD
 
       - name: Install Java ${{ env.JAVA_VERSION }} and Maven
@@ -59,8 +59,8 @@ jobs:
       - name: Checkout source
         run: |
           git init .
-          git remote add origin https://github.com/${{ github.repository }}.git
-          git -c http.extraheader="AUTHORIZATION: bearer ${{ secrets.GITHUB_TOKEN }}" fetch --depth=1 origin ${{ github.sha }}
+          git remote add origin https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git
+          git fetch --depth=1 origin ${{ github.sha }}
           git checkout --force FETCH_HEAD
 
       - name: Install Java ${{ env.JAVA_VERSION }} and Maven
@@ -85,8 +85,8 @@ jobs:
       - name: Checkout source
         run: |
           git init .
-          git remote add origin https://github.com/${{ github.repository }}.git
-          git -c http.extraheader="AUTHORIZATION: bearer ${{ secrets.GITHUB_TOKEN }}" fetch --depth=1 origin ${{ github.sha }}
+          git remote add origin https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git
+          git fetch --depth=1 origin ${{ github.sha }}
           git checkout --force FETCH_HEAD
 
       - name: Build Docker image
@@ -106,8 +106,8 @@ jobs:
       - name: Checkout source
         run: |
           git init .
-          git remote add origin https://github.com/${{ github.repository }}.git
-          git -c http.extraheader="AUTHORIZATION: bearer ${{ secrets.GITHUB_TOKEN }}" fetch --depth=1 origin ${{ github.sha }}
+          git remote add origin https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git
+          git fetch --depth=1 origin ${{ github.sha }}
           git checkout --force FETCH_HEAD
 
       - name: Install Java ${{ env.JAVA_VERSION }} and Maven

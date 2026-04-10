@@ -6,10 +6,12 @@ on:
   pull_request:
     branches: [ "main", "master" ]
 
+permissions:
+  contents: read
+
 env:
   JAVA_VERSION: '8'
   IMAGE_NAME: chatapp
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
 
 jobs:
 
@@ -20,14 +22,20 @@ jobs:
 
     steps:
       - name: Checkout source
-        uses: actions/checkout@v5
+        run: |
+          git init .
+          git remote add origin https://github.com/${{ github.repository }}.git
+          git -c http.extraheader="AUTHORIZATION: bearer ${{ secrets.GITHUB_TOKEN }}" fetch --depth=1 origin ${{ github.sha }}
+          git checkout --force FETCH_HEAD
 
-      - name: Set up JDK ${{ env.JAVA_VERSION }}
-        uses: actions/setup-java@v5
-        with:
-          java-version: ${{ env.JAVA_VERSION }}
-          distribution: 'temurin'
-          cache: maven
+      - name: Install Java ${{ env.JAVA_VERSION }} and Maven
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y openjdk-8-jdk maven
+          echo "JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64" >> $GITHUB_ENV
+          echo "/usr/lib/jvm/java-8-openjdk-amd64/bin" >> $GITHUB_PATH
+          java -version
+          mvn -version
 
       - name: Build with Maven
         run: mvn clean compile --no-transfer-progress
@@ -38,12 +46,8 @@ jobs:
       - name: Package JAR
         run: mvn package -DskipTests --no-transfer-progress
 
-      - name: Upload JAR artifact
-        uses: actions/upload-artifact@v6
-        with:
-          name: chatapp-jar
-          path: target/*.jar
-          retention-days: 7
+      - name: List packaged artifact
+        run: ls -lah target || true
 
   # ── Job 2: Code Quality ─────────────────────────────────────────────────────
   code-quality:
@@ -53,14 +57,18 @@ jobs:
 
     steps:
       - name: Checkout source
-        uses: actions/checkout@v5
+        run: |
+          git init .
+          git remote add origin https://github.com/${{ github.repository }}.git
+          git -c http.extraheader="AUTHORIZATION: bearer ${{ secrets.GITHUB_TOKEN }}" fetch --depth=1 origin ${{ github.sha }}
+          git checkout --force FETCH_HEAD
 
-      - name: Set up JDK ${{ env.JAVA_VERSION }}
-        uses: actions/setup-java@v5
-        with:
-          java-version: ${{ env.JAVA_VERSION }}
-          distribution: 'temurin'
-          cache: maven
+      - name: Install Java ${{ env.JAVA_VERSION }} and Maven
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y openjdk-8-jdk maven
+          echo "JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64" >> $GITHUB_ENV
+          echo "/usr/lib/jvm/java-8-openjdk-amd64/bin" >> $GITHUB_PATH
 
       - name: Run Maven verify
         run: mvn verify --no-transfer-progress -DskipTests
@@ -75,19 +83,18 @@ jobs:
 
     steps:
       - name: Checkout source
-        uses: actions/checkout@v5
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        run: |
+          git init .
+          git remote add origin https://github.com/${{ github.repository }}.git
+          git -c http.extraheader="AUTHORIZATION: bearer ${{ secrets.GITHUB_TOKEN }}" fetch --depth=1 origin ${{ github.sha }}
+          git checkout --force FETCH_HEAD
 
       - name: Build Docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          push: false
-          tags: ${{ env.IMAGE_NAME }}:latest,${{ env.IMAGE_NAME }}:${{ github.sha }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+        run: |
+          docker build \
+            -t ${{ env.IMAGE_NAME }}:latest \
+            -t ${{ env.IMAGE_NAME }}:${{ github.sha }} \
+            .
 
   # ── Job 4: Security Scan ────────────────────────────────────────────────────
   security-scan:
@@ -97,25 +104,25 @@ jobs:
 
     steps:
       - name: Checkout source
-        uses: actions/checkout@v5
+        run: |
+          git init .
+          git remote add origin https://github.com/${{ github.repository }}.git
+          git -c http.extraheader="AUTHORIZATION: bearer ${{ secrets.GITHUB_TOKEN }}" fetch --depth=1 origin ${{ github.sha }}
+          git checkout --force FETCH_HEAD
 
-      - name: Set up JDK ${{ env.JAVA_VERSION }}
-        uses: actions/setup-java@v5
-        with:
-          java-version: ${{ env.JAVA_VERSION }}
-          distribution: 'temurin'
-          cache: maven
+      - name: Install Java ${{ env.JAVA_VERSION }} and Maven
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y openjdk-8-jdk maven
+          echo "JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64" >> $GITHUB_ENV
+          echo "/usr/lib/jvm/java-8-openjdk-amd64/bin" >> $GITHUB_PATH
 
       - name: OWASP Dependency Check
         run: mvn org.owasp:dependency-check-maven:check --no-transfer-progress || true
 
-      - name: Upload OWASP report
-        uses: actions/upload-artifact@v6
+      - name: Show OWASP report path
         if: always()
-        with:
-          name: owasp-report
-          path: target/dependency-check-report.html
-          retention-days: 7
+        run: ls -lah target/dependency-check-report.html || true
 
   # ── Job 5: Deployment Summary ───────────────────────────────────────────────
   deploy-summary:

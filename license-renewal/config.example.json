@@ -1,0 +1,15 @@
+{
+  "_comment": "Copy this file to config.json and fill in the values for your environment.",
+
+  "sharePath": "\\\\license-share-server\\LicenseShare",
+  "licenseFileName": "license.lic",
+
+  "backupRoot": "C:\\LicenseBackups",
+
+  "licenseDestPath": "C$\\Program Files\\YourApp\\licenses",
+
+  "servicesToRestart": [
+    "YourAppService",
+    "YourAppLicenseManager"
+  ]
+}

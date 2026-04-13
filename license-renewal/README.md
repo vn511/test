@@ -58,7 +58,7 @@ You will be prompted:
 Enter the hostname of the server to renew the license on: myserver01
 ```
 
-After entering the hostname the tool will automatically execute all five steps
+After entering the hostname the tool will automatically execute all six steps
 and display a summary banner at the end.
 
 You can also point the script at a non-default config file:

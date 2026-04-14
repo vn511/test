@@ -1,0 +1,53 @@
+name: License Renewal CI
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+    inputs:
+      machine_name:
+        description: Machine name supplied by the operator for the run
+        required: false
+        default: operator-demo-machine
+
+jobs:
+  validate-and-test:
+    runs-on: windows-latest
+    env:
+      LICENSE_MACHINE_NAME: ${{ github.event.inputs.machine_name || 'operator-demo-machine' }}
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Show PowerShell version
+        shell: pwsh
+        run: $PSVersionTable.PSVersion
+
+      - name: Validate script syntax
+        shell: pwsh
+        run: |
+          $errors = $null
+          [System.Management.Automation.Language.Parser]::ParseFile("./license_renewal.ps1", [ref]$null, [ref]$errors) | Out-Null
+          if ($errors.Count -gt 0) {
+            $errors | ForEach-Object { Write-Error $_ }
+            throw "PowerShell parser validation failed."
+          }
+
+      - name: Run local integration tests
+        shell: pwsh
+        run: ./tests/Invoke-LicenseRenewalTests.ps1
+
+      - name: Upload test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: license-renewal-artifacts
+          path: artifacts
+          if-no-files-found: ignore

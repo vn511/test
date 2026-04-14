@@ -1,0 +1,5 @@
+config.json
+artifacts/
+test-results/
+*.log
+*.tmp

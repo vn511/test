@@ -1,0 +1,8 @@
+{
+  "sharePath": ".\\test-data\\share",
+  "licenseFileName": "license.lic",
+  "backupRoot": ".\\artifacts\\backups",
+  "targetMode": "localPath",
+  "licenseDestPath": ".\\artifacts\\target",
+  "servicesToRestart": []
+}

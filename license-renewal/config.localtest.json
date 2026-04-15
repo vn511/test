@@ -1,0 +1,7 @@
+{
+  "sharePath": ".\\test-data\\share",
+  "licenseFileName": "license.lic",
+  "backupRoot": ".\\test-data\\backups",
+  "licenseDestPath": "C$\\Temp\\LicenseRenewalTest",
+  "servicesToRestart": []
+}

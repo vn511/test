@@ -25,6 +25,22 @@ license-renewal-repo/
 
 ## Running locally
 
+### One-click batch launcher for operators
+
+Use `Run-LicenseRenewal.bat` from File Explorer or Command Prompt. It will:
+
+- Prompt for machine name when not provided
+- Use `config.json` by default
+- Run the PowerShell renewal script with execution policy bypass for that run
+
+Examples:
+
+```cmd
+Run-LicenseRenewal.bat
+Run-LicenseRenewal.bat APP-SERVER-01
+Run-LicenseRenewal.bat APP-SERVER-01 D:\ops\license\config.json
+```
+
 ### Interactive operator prompt
 
 ```powershell
